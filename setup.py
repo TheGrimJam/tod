@@ -30,7 +30,7 @@ setup (
  python_requires='>=2.7', # any python greater than 2.7
  entry_points='''
         [console_scripts]
-        tod=tod.tod
+        tod=tod.tod:toddyboy
     ''',
  author="Gavin McCormack",
  long_description=README,

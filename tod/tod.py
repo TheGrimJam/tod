@@ -4,7 +4,7 @@ A command line todoist application. There's already one of these, but this one i
 """
 
 __author__ = "Gavin McCormack"
-__version__ = "0.1.0"
+__version__ = "1.0.0"
 __license__ = "MIT"
 
 
@@ -15,107 +15,109 @@ import sys
 import pathlib
 import os
 
+def toddyboy():
+	# Ve like ze variables long yes. Makes us feel like the terminator yes.
+	API_KEY_ENVIRONMENT_VARIABLE_NAME='TOD_API_KEY'
+	TARGET_PROJECT_ENVIRONMENT_VARIABLE_NAME='TOD_TARG_PROJECT'
 
-# Ve like ze variables long yes. Makes us feel like the terminator yes.
-API_KEY_ENVIRONMENT_VARIABLE_NAME='TOD_API_KEY'
-TARGET_PROJECT_ENVIRONMENT_VARIABLE_NAME='TOD_TARG_PROJECT'
-
-API_KEY = os.environ.get(API_KEY_ENVIRONMENT_VARIABLE_NAME)
-TARGET_PROJECT = os.environ.get(TARGET_PROJECT_ENVIRONMENT_VARIABLE_NAME)
-
-print(API_KEY, TARGET_PROJECT)
-
-# Setup if not run before
-if not API_KEY or TARGET_PROJECT:
-	print("Please navigate to -wherever you get a todoist api key- and input it here:")
-	API_KEY = input()
-	print("Please input project ID:")
-	TARGET_PROJECT = input()
-	os.environ[API_KEY_ENVIRONMENT_VARIABLE_NAME] = API_KEY
-	os.environ[TARGET_PROJECT_ENVIRONMENT_VARIABLE_NAME] = TARGET_PROJECT
+	API_KEY = os.environ.get(API_KEY_ENVIRONMENT_VARIABLE_NAME)
+	TARGET_PROJECT = int(os.environ.get(TARGET_PROJECT_ENVIRONMENT_VARIABLE_NAME))
 
 
-mode, task = "", ""
+	# Setup if not run before
+	if not API_KEY or not TARGET_PROJECT:
+		print("Please set environment variables TOD_API_KEY and TOD_TARG_PROJECT")
+		#print("Please navigate to -wherever you get a todoist api key- and input it here:")
+		#API_KEY = input()
+		#print("Please input project ID:")
+		#TARGET_PROJECT = input()
+		#os.environ[API_KEY_ENVIRONMENT_VARIABLE_NAME] = API_KEY
+		#os.environ[TARGET_PROJECT_ENVIRONMENT_VARIABLE_NAME] = TARGET_PROJECT
+		exit()
 
-if len(sys.argv) > 0:
-	mode = sys.argv[1]
-else:
-	print("Please provide an 'add' or 'del' parameter in the first position")
-if len(sys.argv) > 1 and sys.argv[1] != "list":
-	print(sys.argv[2])
-	task = sys.argv[2]
-elif sys.argv[1] == "list":
-	pass
-else:
-	print("Please provide a string for the task title")
+	mode, task = "", ""
 
-if not ( mode or task ):
-	print("Exiting")
-	exit()
+	if len(sys.argv) > 0:
+		mode = sys.argv[1]
+	else:
+		print("Please provide an 'add' or 'del' parameter in the first position")
+	if len(sys.argv) > 1 and sys.argv[1] != "list":
+		task = sys.argv[2]
+	elif sys.argv[1] == "list":
+		pass
+	else:
+		print("Please provide a string for the task title")
 
-api = todoist.api.TodoistAPI(API_KEY)
-api.sync()
+	if not ( mode or task ):
+		print("Exiting")
+		exit()
 
-if mode == "list":
-	print('-------------')
+	api = todoist.api.TodoistAPI(API_KEY)
+	api.sync()
 
-	print('https://todoist.com/app/project/%s' % TARGET_PROJECT)
-	print('-------------\n\n\n')
+	if mode == "list":
+		print('-------------')
 
-	## Projects and IDs
-	PRINT_PROJECT_IDS = False
-	if PRINT_PROJECT_IDS:
-		for project in api.state['projects']:
-			print(project['name'] + ": " + str(project['id']))
+		print('https://todoist.com/app/project/%s' % TARGET_PROJECT)
+		print('-------------\n\n\n')
 
-	TARGET_PROJECT_NAME = "Agenda" # NB: implement
-	task_no = 0 # Number of tasks that are valid in API ordered. 
-	for item in api.state['items']:
-		if item['project_id'] == TARGET_PROJECT:
-			in_history = item['in_history'] == 0
-			is_deleted = item['is_deleted'] == 0
-			if in_history and is_deleted:
-				task_no += 1
-				print('\u001b[32m[%s] \u001b[0m- %s \n' % (task_no, item['content'] ))
+		## Projects and IDs
+		PRINT_PROJECT_IDS = False
+		if PRINT_PROJECT_IDS:
+			for project in api.state['projects']:
+				print(project['name'] + ": " + str(project['id']))
 
-
-	print('\n\n\n-------------\n\n\n')
+		TARGET_PROJECT_NAME = "Agenda" # NB: implement
+		task_no = 0 # Number of tasks that are valid in API ordered. 
+		for item in api.state['items']:
+			if item['project_id'] == int(TARGET_PROJECT):
+				in_history = item['in_history'] == 0
+				is_deleted = item['is_deleted'] == 0
+				if in_history and is_deleted:
+					task_no += 1
+					print('\u001b[32m[%s] \u001b[0m- %s \n' % (task_no, item['content'] ))
 
 
-
-## Add
-if mode == "add":
-	print('-------------')
-	print('Adding task...\n')
-	print('\u001b[32m %s\u001b[0m- \n' % task)
-
-	task1 = api.items.add(task, project_id=PROJECT_ID)
-	api.commit()
-	print("... Done")
-	print('-------------\n\n\n')
+		print('\n\n\n-------------\n\n\n')
 
 
 
-## Delete
-if sys.argv[1] == "del":
-	print("Trying delete task...")
-	target_task_no = int(task)
-	task_no = 0 # Number of tasks that are valid in API order. 
-	success = False
-	for item in api.state['items']:
-		#print(task_no, target_task_no)
-		if item['project_id'] == TARGET_PROJECT:
-			in_history = item['in_history'] == 0
-			is_deleted = item['is_deleted'] == 0
-			if in_history and is_deleted:
-				task_no += 1
-				if target_task_no == task_no:					
-					item.complete()
-					api.commit()
-					success = True
-	if success:
+	## Add
+	if mode == "add":
+		print('-------------')
+		print('Adding task...\n')
+		print('\u001b[32m %s\u001b[0m- \n' % task)
+
+		task1 = api.items.add(task, project_id=TARGET_PROJECT)
+		api.commit()
 		print("... Done")
 		print('-------------\n\n\n')
-	else:
-		print("... Did not find task to delete")
 
+
+
+	## Delete
+	if sys.argv[1] == "del":
+		print("Trying delete task...")
+		target_task_no = int(task)
+		task_no = 0 # Number of tasks that are valid in API order. 
+		success = False
+		for item in api.state['items']:
+			#print(task_no, target_task_no)
+			if item['project_id'] == TARGET_PROJECT:
+				in_history = item['in_history'] == 0
+				is_deleted = item['is_deleted'] == 0
+				if in_history and is_deleted:
+					task_no += 1
+					if target_task_no == task_no:					
+						item.complete()
+						api.commit()
+						success = True
+		if success:
+			print("... Done")
+			print('-------------\n\n\n')
+		else:
+			print("... Did not find task to delete")
+
+
+if __name__ == "__main__":
+	toddyboy()
