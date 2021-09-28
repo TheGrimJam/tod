@@ -12,8 +12,27 @@ import todoist
 import inspect
 import pdb
 import sys
-from config_settings import TARGET_PROJECT, API_KEY
+import pathlib
+import os
 
+
+# Ve like ze variables long yes. Makes us feel like the terminator yes.
+API_KEY_ENVIRONMENT_VARIABLE_NAME='TOD_API_KEY'
+TARGET_PROJECT_ENVIRONMENT_VARIABLE_NAME='TOD_TARG_PROJECT'
+
+API_KEY = os.environ.get(API_KEY_ENVIRONMENT_VARIABLE_NAME)
+TARGET_PROJECT = os.environ.get(TARGET_PROJECT_ENVIRONMENT_VARIABLE_NAME)
+
+print(API_KEY, TARGET_PROJECT)
+
+# Setup if not run before
+if not API_KEY or TARGET_PROJECT:
+	print("Please navigate to -wherever you get a todoist api key- and input it here:")
+	API_KEY = input()
+	print("Please input project ID:")
+	TARGET_PROJECT = input()
+	os.environ[API_KEY_ENVIRONMENT_VARIABLE_NAME] = API_KEY
+	os.environ[TARGET_PROJECT_ENVIRONMENT_VARIABLE_NAME] = TARGET_PROJECT
 
 
 mode, task = "", ""

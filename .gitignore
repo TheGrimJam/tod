@@ -2,7 +2,7 @@
 
 # Should be populated on first run
 config_settings.py 
-
+config.py
 
 
 # Byte-compiled / optimized / DLL files

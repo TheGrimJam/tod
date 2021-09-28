@@ -9,6 +9,7 @@ from os import path
 import pathlib
 HERE = pathlib.Path(__file__).parent
 README = (HERE / "README.md").read_text()
+config_file = path.join(HERE, 'tod', 'config.py')
 
 # automatically captured required modules for install_requires in requirements.txt and as well as configure dependency links
 with open(path.join(HERE, 'requirements.txt'), encoding='utf-8') as f:
