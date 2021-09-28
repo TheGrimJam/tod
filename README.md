@@ -7,12 +7,20 @@ Tastefully small procrastination
 # Installation
 
 
-Local installation
+Local installation with your python distribution. Tested on python3.9
 
 ```
 
-(sudo) python setup.py install
+python setup.py install
 
 ```
 
 Packaged for pypi but the internet doesn't need more clutter
+
+
+Define your environment variables for 
+```
+
+export TOD_API_KEY= 
+export TOD_TARG_PROJECT=
+```
