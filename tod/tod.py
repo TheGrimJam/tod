@@ -40,7 +40,7 @@ api.sync()
 if mode == "list":
 	print('-------------')
 
-	print('https://todoist.com/app/project/2253370271')
+	print('https://todoist.com/app/project/%s' % TARGET_PROJECT)
 	print('-------------\n\n\n')
 
 	## Projects and IDs
@@ -49,10 +49,10 @@ if mode == "list":
 		for project in api.state['projects']:
 			print(project['name'] + ": " + str(project['id']))
 
-	TARGET_PROJECT = "Agenda" # NB: implement
+	TARGET_PROJECT_NAME = "Agenda" # NB: implement
 	task_no = 0 # Number of tasks that are valid in API ordered. 
 	for item in api.state['items']:
-		if item['project_id'] == 2253370271:
+		if item['project_id'] == TARGET_PROJECT:
 			in_history = item['in_history'] == 0
 			is_deleted = item['is_deleted'] == 0
 			if in_history and is_deleted:
@@ -85,7 +85,7 @@ if sys.argv[1] == "del":
 	success = False
 	for item in api.state['items']:
 		#print(task_no, target_task_no)
-		if item['project_id'] == 2253370271:
+		if item['project_id'] == TARGET_PROJECT:
 			in_history = item['in_history'] == 0
 			is_deleted = item['is_deleted'] == 0
 			if in_history and is_deleted:
