@@ -35,9 +35,15 @@ export TOD_TARG_PROJECT=
 tod list
 
 tod del [n]  # N = a number from tod list.
+tod del n,m,y # 5,6,7
 
 tod add "A title string for the task"
 
 ```
 
 Truly a masterpiece of engineering
+
+
+# Pour moi
+
+Quick testing without package installation using python3.9

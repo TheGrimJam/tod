@@ -12,10 +12,9 @@ import todoist
 import inspect
 import pdb
 import sys
-import pathlib
 import os
 
-def toddyboy():
+def toddyboy(): # Functionwrap to make load_entry_point happy
 	# Ve like ze variables long yes. Makes us feel like the terminator yes.
 	API_KEY_ENVIRONMENT_VARIABLE_NAME='TOD_API_KEY'
 	TARGET_PROJECT_ENVIRONMENT_VARIABLE_NAME='TOD_TARG_PROJECT'
@@ -23,39 +22,43 @@ def toddyboy():
 	API_KEY = os.environ.get(API_KEY_ENVIRONMENT_VARIABLE_NAME)
 	TARGET_PROJECT = int(os.environ.get(TARGET_PROJECT_ENVIRONMENT_VARIABLE_NAME))
 
-
 	# Setup if not run before
+	# Having an active configuration seems like overkill
 	if not API_KEY or not TARGET_PROJECT:
 		print("Please set environment variables TOD_API_KEY and TOD_TARG_PROJECT")
-		#print("Please navigate to -wherever you get a todoist api key- and input it here:")
-		#API_KEY = input()
-		#print("Please input project ID:")
-		#TARGET_PROJECT = input()
-		#os.environ[API_KEY_ENVIRONMENT_VARIABLE_NAME] = API_KEY
-		#os.environ[TARGET_PROJECT_ENVIRONMENT_VARIABLE_NAME] = TARGET_PROJECT
+		print("Or check they are available for the executing user")
 		exit()
+
 
 	mode, task = "", ""
 
-	if len(sys.argv) > 0:
-		mode = sys.argv[1]
-	else:
-		print("Please provide an 'add' or 'del' parameter in the first position")
-	if len(sys.argv) > 1 and sys.argv[1] != "list":
-		task = sys.argv[2]
-	elif sys.argv[1] == "list":
-		pass
-	else:
-		print("Please provide a string for the task title")
 
-	if not ( mode or task ):
-		print("Exiting")
+	# Basic "You done wrong" feedback
+	# Because you did do wrong, din't you.
+	if len(sys.argv) > 1:
+		mode = sys.argv[1]
+
+	# Thou hast failed at the first hurdle
+	if sys.argv[1] not in ['add','del','list']:
+		print("Please use one of ( add, del, list ) as the first parameter")
 		exit()
+
+	# Ye, mightier than yer peers have been brought low by the trickery of the second
+	if len(sys.argv) > 2 and sys.argv[1] != "list":
+		task = sys.argv[2]
+	elif sys.argv[1] == "add":
+		print("Please provide a string for the task title")
+		exit()
+	elif sys.argv[1] == "del":
+		print("Please provide an integer, or comma separated list in the second position")
+		exit()
+
 
 	api = todoist.api.TodoistAPI(API_KEY)
 	api.sync()
 
-	if mode == "list":
+	def tod_list():
+		""" It lists tasks innit """
 		print('-------------')
 
 		print('https://todoist.com/app/project/%s' % TARGET_PROJECT)
@@ -80,6 +83,8 @@ def toddyboy():
 
 		print('\n\n\n-------------\n\n\n')
 
+	if mode == "list":
+		tod_list()
 
 
 	## Add
@@ -92,31 +97,40 @@ def toddyboy():
 		api.commit()
 		print("... Done")
 		print('-------------\n\n\n')
+		tod_list()
 
 
 
 	## Delete
 	if sys.argv[1] == "del":
-		print("Trying delete task...")
-		target_task_no = int(task)
+		print('-------------')
+		print("Attempting delete...")
+		if "," in task:
+			target_task_no = [int(x) for x in task.split(",") ] # Cumbersome
+		else:
+			target_task_no = [int(task)]
 		task_no = 0 # Number of tasks that are valid in API order. 
 		success = False
+		deleted_tasks = [] # NB: imp
 		for item in api.state['items']:
-			#print(task_no, target_task_no)
 			if item['project_id'] == TARGET_PROJECT:
 				in_history = item['in_history'] == 0
 				is_deleted = item['is_deleted'] == 0
+
 				if in_history and is_deleted:
 					task_no += 1
-					if target_task_no == task_no:					
+					if task_no in target_task_no:
+						deleted_tasks += [task_no]
 						item.complete()
 						api.commit()
 						success = True
 		if success:
+			print(deleted_tasks)
 			print("... Done")
 			print('-------------\n\n\n')
 		else:
 			print("... Did not find task to delete")
+		tod_list()
 
 
 if __name__ == "__main__":

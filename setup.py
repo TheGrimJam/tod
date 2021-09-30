@@ -7,6 +7,7 @@ from io import open
 from os import path
 
 import pathlib
+
 HERE = pathlib.Path(__file__).parent
 README = (HERE / "README.md").read_text()
 config_file = path.join(HERE, 'tod', 'config.py')
